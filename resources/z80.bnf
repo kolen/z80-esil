@@ -1,0 +1,106 @@
+instruction = nop | halt | ld | push | pop | ex | exx | ex-af-af |
+              ldi | ldir | ldd | lddr |
+              cpir | cpdr | add | adc | sbc | sub | bitboolean-8 |
+              cp | cpd | cpi |
+              inc | dec | rlca | rrca | rla | rra | rld | rrd |
+              daa | cpl | neg | scf | ccf |
+              jp | jr | djnz | call | rst | ret |
+              in | out | di | ei | im | reti | retn |
+              ini | inir | ind | indr | outi | otir | otdr | outd |
+              empty | invalid
+
+nop = <'nop'>
+halt = <'halt'>
+ld = <'ld '> pair
+push = <'push '> register-16
+pop = <'pop '> register-16
+ex = <'ex '> pair
+exx = <'exx'>
+ex-af-af = <'ex af, af'> <"'">?
+ldi = <'ldi'>
+ldir = <'ldir'>
+ldd = <'ldd'>
+lddr = <'lddr'>
+cpir = <'cpir'>
+cpi = <'cpi'>
+cpdr = <'cpdr'>
+add = <'add '> pair
+adc = <'adc '> pair
+sbc = <'sbc '> pair
+sub = <'sub '> (position-8 | pair-8)
+
+bitboolean-8 = and | or | xor
+and = <'and '> position-8
+or = <'or '> position-8
+xor = <'xor '> position-8
+
+cp = <'cp '> position-8
+cpd = <'cpd'>
+inc = <'inc '> position
+dec = <'dec '> position
+
+rlca = <'rlca'>
+rrca = <'rrca'>
+rla = <'rla'>
+rra = <'rra'>
+rld = <'rld'>
+rrd = <'rrd'>
+
+daa = <'daa'>
+cpl = <'cpl'>
+neg = <'neg'>
+scf = <'scf'>
+ccf = <'ccf'>
+
+jp = <'jp '> (jp-unc | jp-cond)
+jp-unc = literal-16 | addr-from-register
+jp-cond = condition <', '> (literal-16 | addr-from-register)
+jr = <'jr '> (jr-unc | jr-cond)
+jr-unc = literal-8
+jr-cond = condition <', '> literal-8
+djnz = <'djnz '> literal-8
+call = <'call '> (call-unc | call-cond)
+call-unc = literal-16
+call-cond = condition <', '> literal-16
+rst = <'rst '> <'0x'> ( '00' | '08' | '10' | '18' | '20' | '28' | '30' | '38' )
+ret = ret-unc | ret-cond
+ret-unc = <'ret'>
+ret-cond = <'ret '> condition
+
+in =  <'in '> [ position-8 <', '> ] port
+out = <'out '> port <', '> (position-8 | '0')
+di = <'di'>
+ei = <'ei'>
+im = <'im '> ( '0' | '1' | '2' )
+reti = <'reti'>
+retn = <'retn'>
+ini = <'ini'>
+inir = <'inir'>
+ind = <'ind'>
+indr = <'indr'>
+outi = <'outi'>
+otir = <'otir'>
+otdr = <'otdr'>
+outd = <'outd'>
+
+empty = ''
+invalid = 'invalid' | '!unk'
+
+<position> = position-8 | position-16
+<position-8> = register-8 | addr-from-register | literal-8 | addr
+<position-16> = register-16 | addr-from-register | literal-16 | addr
+<pair> = pair-8 | pair-16
+pair-8 = position-8 <', '> position-8
+pair-16 = position-16 <', '> position-16
+register = register-8 | register-16
+register-8 = 'a' | 'b' | 'c' | 'd' | 'e' | 'h' | 'l' | 'i' | 'r' | 'f' |
+             'ixh' | 'ixl' | 'iyh' | 'iyl'
+register-16 = 'bc' | 'de' | 'hl' | 'af' | 'sp' | 'ix' | 'iy'
+addr-from-register = <'['> register-16 <']'>
+literal = literal-8 | literal-16
+literal-8 = <'0x%02x'>
+literal-16 = <'0x%04x'>
+literal-8-with-index = ('ix' | 'iy') <'+'> literal-8
+addr = <'['> (literal-16 | literal-8-with-index) <']'>
+port = (<'['> literal-8 <']'>) | literal-8 | '[c]'
+condition = 'nz' | 'z' | 'nc' | 'c' | 'po' | 'pe' | 'p' | 'm'
