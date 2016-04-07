@@ -1,8 +1,7 @@
 instruction = nop | halt | ld | push | pop | ex | exx | ex-af-af |
-              ldi | ldir | ldd | lddr |
-              cpir | cpdr | add | adc | sbc | sub | bitboolean-8 |
-              cp | cpd | cpi |
-              inc | dec | rlca | rrca | rla | rra | rld | rrd |
+              ldi | ldir | ldd | lddr | cpi | cpir | cpd | cpdr |
+              add | adc | sbc | sub | bitboolean-8 |
+              cp | inc | dec | rlca | rrca | rla | rra | rld | rrd |
               daa | cpl | neg | scf | ccf |
               jp | jr | djnz | call | rst | ret |
               in | out | di | ei | im | reti | retn |
