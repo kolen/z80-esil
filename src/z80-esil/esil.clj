@@ -13,6 +13,9 @@
 (defn build [& args]
   (s/join "," args))
 
+(defn swap-registers [reg1 reg2]
+  [reg2 reg1 "^=" reg1 reg2 "^=" reg2 reg1 "^="])
+
 (defn flag-arg [arg])
 
 ;; set flag to 1 if arg is non-zero otherwise 0
@@ -81,13 +84,56 @@
    [:pair-16 [:addr-from-register [:register-16 rd]] [:register-16 rs]]
    (build rs rd "=[2]")))
 
+(defn esil-push [register]
+  (match register [:register-16 r] (build 2 "sp" "-=" r "sp" "=[2]")))
+
+(defn esil-pop [register]
+  (match register [:register-16 r] (build "sp" "[2]" r "=" 2 "sp" "+=")))
+
+(defn esil-ex [pair]
+  (match
+   pair
+   [:pair-16 [:register-16 "de"] [:register-16 "hl"]]
+   (apply build (swap-registers "de" "hl"))
+   [:pair-16 [:addr-from-register [:register-16 "sp"]] [:register-16 r2]]
+   (apply build "sp" "[]" r2 "sp" "=[2]" r2 "=")))
+
+(defn esil-ex-af-af []
+  (apply build (concat (swap-registers "a" "a1") (swap-registers "f" "f1"))))
+
+(defn esil-exx []
+  (apply build (flatten (for [[r1 r2] [["bc" "bc1"] ["de" "de1"] ["hl" "hl1"]]]
+                         (swap-registers r1 r2)))))
+
+(defn esil-ldi []
+  (build "hl" "[1]" "de" "=[1]" 1 "de" "+=" 1 "hl" "+=" 1 "bc" "-="))
+
+(defn esil-ldir []
+  (build (esil-ldi) "bc" "!" "?{,BREAK,}" "0" "GOTO"))
+
+(defn esil-ldd []
+  (build "hl" "[1]" "de" "=[1]" 1 "de" "-=" 1 "hl" "-=" 1 "bc" "-="))
+
+(defn esil-lddr []
+  (build (esil-ldd) "bc" "!" "?{,BREAK,}" "0" "GOTO"))
+
+(defn esil-cpi [])
+
+(defn esil-cpir [])
+
+(defn esil-cpd [])
+
+(defn esil-cpdr [])
+
+(defn esil-add [])
+
 (defn flags-ld [pair]
   (match pair
          ;; ld a, i; ld a, r -- special case
          [:pair-8 [:register-8 "a"] [:register-8 (rs :guard #{"i" "r"})]]
          (flags :sf "a" :zf "a" :yf "a" :hf 0 :xf "a" :pf "iff2" :nf 0)))
 
-(esil (parse-instr "ld a, r"))
+(esil (parse-instr "ldir"))
 
 (esil-flags (parse-instr "ld a, r"))
 
