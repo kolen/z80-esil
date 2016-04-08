@@ -1,6 +1,6 @@
 instruction = nop | halt | ld | push | pop | ex | exx | ex-af-af |
               ldi | ldir | ldd | lddr | cpi | cpir | cpd | cpdr |
-              add | adc | sbc | sub | bitboolean-8 |
+              add | adc | sbc | sub | and | or | xor |
               cp | inc | dec | rlca | rrca | rla | rra | rld | rrd |
               daa | cpl | neg | scf | ccf |
               jp | jr | djnz | call | rst | ret |
@@ -28,7 +28,6 @@ adc = <'adc '> pair
 sbc = <'sbc '> pair
 sub = <'sub '> (position-8 | pair-8)
 
-bitboolean-8 = and | or | xor
 and = <'and '> position-8
 or = <'or '> position-8
 xor = <'xor '> position-8
