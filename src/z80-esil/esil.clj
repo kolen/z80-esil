@@ -40,13 +40,26 @@
 ;;    flatten
 ;;    (s/join ",")))
 
+;; (defn position-prefix [position]
+;;   (match position
+;;          [:register-8 _] :reg
+;;          [:register-16 _] :reg
+;;          [:addr-from-register _] :areg
+;;          [:literal-8 _] :))
+
+;; (defn pair-prefix [pair]
+;;   (match pair
+;;          [:pair-8]))
+
 (defn opdata "Return op data structure for instr (parsed tree)"
   [instr]
   (match instr
          [:instruction opname]
          {:i opname} ;; when without args
-         [:instruction [opname & args]]
-         (apply (handler-fn opname "irecord-") args)))
+         ;; [:instruction [opname & args]]
+         ;; (apply (handler-fn opname "irecord-") args)
+         [:instruction opname [:pair-8 [:reg-8]]]
+         ))
 
 ;; (defn esil-flags [instr]
 ;;   (match instr
@@ -107,13 +120,82 @@
 ;;    [:pair-16 [:addr-from-register [:register-16 "sp"]] [:register-16 r2]]
 ;;    (apply build "sp" "[]" r2 "sp" "=[2]" r2 "=")))
 
-(defn esil-ex [pair]
+(defn opdata-ex [pair]
   (match
    pair
    [:pair-16 [:register-16 "de"] [:register-16 "hl"]]
    {:i :ex-de-hl}
    [:pair-16 [:addr-from-register [:register-16 "sp"]] [:register-16 r2]]
    {:i :ex-a-sp-reg :r [r2]}))
+
+(defn opdata-add [pair]
+  (match
+   pair
+   [:pair-8 [:register-8 "a"] [:register-8 rs]]
+   {:i :add-a-reg :r [rs]}
+   [:pair-8 [:register-8 "a"] [:addr-from-register [:register-16 "hl"]]]
+   {:i :add-a-ahl}
+   [:pair-8 [:register-8 "a"] [:addr [:literal-8-with-index in]]]
+   {:i :add-a-aixiy :r [in] :arg :arg-8}))
+
+(defn opdata-adc [pair]
+  (match
+   pair
+   [:pair-8 [:register-8 "a"] [:register-8 rs]]
+   {:i :adc :r [rs]}))
+
+(defn opdata-sub [reg]
+  (match
+   reg
+   [:register-8 rs]
+   {:i :sub :r [rs]}))
+
+(defn opdata-sbc [pair]
+  (match
+   pair
+   [:pair-8 [:register-8 "a"] [:register-8 rs]]
+   {:i :sbc :r [rs]}))
+
+(defn opdata-and [reg]
+  (match
+   reg
+   [:reg-8 rs]
+   {:i :and :r [rs]}))
+
+(defn opdata-or [reg]
+  (match
+   reg
+   [:reg-8 rs]
+   {:i :or :r [rs]}))
+
+(defn opdata-xor [reg]
+  (match
+   reg
+   [:reg-8 rs]
+   {:i :xor :r [rs]}))
+
+(defn opdata-cp [reg]
+  (match
+   reg
+   [:reg-8 rs]
+   {:i :cp :r [rs]}))
+
+(defn opdata-inc [reg]
+  (match
+   reg
+   [:reg-8 rs]
+   {:i :inc-reg :r [rs]}
+   [:addr-from-register [:register-16 "hl"]]
+   {:i :inc-ahl}
+   [:addr [:literal-8-with-index in]]
+   {:i :inc-aixiy :r [in] :arg :arg-8}))
+
+(defn opdata-dec [reg]
+  (match
+   reg
+   [:reg-8 r]
+   {:i :add-8-reg :r [r]}))
+
 
 ;; (defn esil-ex-af-af []
 ;;   (apply build (concat (swap-registers "a" "a1") (swap-registers "f" "f1"))))
@@ -144,15 +226,17 @@
 
 ;; (defn esil-add [])
 
-(defn flags-ld [pair]
-  (match pair
-         ;; ld a, i; ld a, r -- special case
-         [:pair-8 [:register-8 "a"] [:register-8 (rs :guard #{"i" "r"})]]
-         (flags :sf "a" :zf "a" :yf "a" :hf 0 :xf "a" :pf "iff2" :nf 0)))
+;; (defn flags-ld [pair]
+;;   (match pair
+;;          ;; ld a, i; ld a, r -- special case
+;;          [:pair-8 [:register-8 "a"] [:register-8 (rs :guard #{"i" "r"})]]
+;;          (flags :sf "a" :zf "a" :yf "a" :hf 0 :xf "a" :pf "iff2" :nf 0)))
 
 (esil (parse-instr "ldir"))
 
-(esil-flags (parse-instr "ld a, r"))
+(parse-instr "add a, [iy+0x%02x]")
+
+;; (esil-flags (parse-instr "ld a, r"))
 
 (filter insta/failure?
         (for [opc (flatten (vals opcodes)) :when (some? opc)]
