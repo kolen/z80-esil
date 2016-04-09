@@ -159,31 +159,31 @@
 (defn opdata-and [reg]
   (match
    reg
-   [:reg-8 rs]
+   [:register-8 rs]
    {:i :and :r [rs]}))
 
 (defn opdata-or [reg]
   (match
    reg
-   [:reg-8 rs]
+   [:register-8 rs]
    {:i :or :r [rs]}))
 
 (defn opdata-xor [reg]
   (match
    reg
-   [:reg-8 rs]
+   [:register-8 rs]
    {:i :xor :r [rs]}))
 
 (defn opdata-cp [reg]
   (match
    reg
-   [:reg-8 rs]
+   [:register-8 rs]
    {:i :cp :r [rs]}))
 
 (defn opdata-inc [reg]
   (match
    reg
-   [:reg-8 rs]
+   [:register-8 rs]
    {:i :inc-reg :r [rs]}
    [:addr-from-register [:register-16 "hl"]]
    {:i :inc-ahl}
