@@ -136,7 +136,9 @@
    [:pair-8 [:register-8 "a"] [:addr-from-register [:register-16 "hl"]]]
    {:i :add-a-ahl}
    [:pair-8 [:register-8 "a"] [:addr [:literal-8-with-index in]]]
-   {:i :add-a-aixiy :r [in] :arg :arg-8}))
+   {:i :add-a-aixiy :r [in] :arg :arg-8}
+   [:pair-16 [:register-16 rd] [:register-16 rs]]
+   {:i :add-16-reg-reg :r [rd rs]}))
 
 (defn opdata-adc [pair]
   (match
@@ -188,14 +190,35 @@
    [:addr-from-register [:register-16 "hl"]]
    {:i :inc-ahl}
    [:addr [:literal-8-with-index in]]
-   {:i :inc-aixiy :r [in] :arg :arg-8}))
+   {:i :inc-aixiy :r [in] :arg :arg-8}
+   [:register-16 rs]
+   {:i :inc-16-reg :r [rs]}))
 
 (defn opdata-dec [reg]
   (match
    reg
-   [:reg-8 r]
-   {:i :add-8-reg :r [r]}))
+   [:register-8 r]
+   {:i :add-8-reg :r [r]}
+   [:register-16 rs]
+   {:i :inc-16-reg :r [rs]}))
 
+(defn opdata-rlc [reg]
+  (match
+   reg
+   [:register-8 r]
+   {:i :rlc-reg :r [r]}
+   [:addr-from-register [:register-8 r]]
+   {:i :rlc-areg :r [r]}))
+
+(defn opdata-jp [unc-or-cond]
+  (match
+   unc-or-cond
+   [:jp-unc [:literal-16]]
+   {:i :jp-unc-addr :arg :arg-16}
+   [:jp-unc [:addr-from-register [:register-16 r]]]
+   {:i :jp-unc-areg :r [r]}
+   [:jp-cond [:condition c] [:literal-16]]
+   {:i :jp-cond-addr :cond c :arg :arg-16}))
 
 ;; (defn esil-ex-af-af []
 ;;   (apply build (concat (swap-registers "a" "a1") (swap-registers "f" "f1"))))
