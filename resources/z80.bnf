@@ -52,7 +52,7 @@ ccf = <'ccf'>
 
 jp = <'jp '> (jp-unc | jp-cond)
 jp-unc = literal-16 | addr-from-register
-jp-cond = condition <', '> (literal-16 | addr-from-register)
+jp-cond = condition <', '> literal-16
 jr = <'jr '> (jr-unc | jr-cond)
 jr-unc = literal-8
 jr-cond = condition <', '> literal-8
