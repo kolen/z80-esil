@@ -54,11 +54,10 @@
 (defn opdata "Return op data structure for instr (parsed tree)"
   [instr]
   (match instr
-         [:instruction opname]
+         [:instruction [opname]]
          {:i opname} ;; when without args
-         ;; [:instruction [opname & args]]
-         ;; (apply (handler-fn opname "irecord-") args)
-         [:instruction opname [:pair-8 [:reg-8]]]
+         [:instruction [opname & args]]
+         (apply (handler-fn opname "opdata-") args)
          ))
 
 ;; (defn esil-flags [instr]
