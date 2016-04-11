@@ -94,7 +94,12 @@
    [:pair-16 [:addr _] [:register-16 rs]]
    {:i :ld-16-addr-reg :r [rs] :arg :arg16}
    [:pair-16 [:addr-from-register [:register-16 rd]] [:register-16 rs]]
-   {:i :ld-16-areg-reg :r [rd rs]}))
+   {:i :ld-16-areg-reg :r [rd rs]}
+   ;; write arg to register
+   [:pair-16 [:register-16 rd] [:literal-16]]
+   {:i :ld-16-reg-arg :r [rd] :arg :arg16}
+   [:pair-8 [:register-8 rd] [:literal-8]]
+   {:i :ld-8-reg-arg :r [rd] :arg :arg8}))
 
 ;; (defn esil-push [register]
 ;;   (match register [:register-16 r] (build 2 "sp" "-=" r "sp" "=[2]")))
