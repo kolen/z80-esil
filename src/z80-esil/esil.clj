@@ -228,6 +228,14 @@
    [:jp-cond [:condition c] [:literal-16]]
    {:i :jp-cond-addr :cond c :arg :arg-16}))
 
+(defn opdata-jr [unc-or-cond]
+  (match
+   unc-or-cond
+   [:jr-unc [:literal-8]]
+   {:i :jr-unc-addr :arg :arg-8}
+   [:jr-cond [:condition c] [:literal-8]]
+   {:i :jr-cond-addr :cond c :arg :arg-8}))
+
 ;; (defn esil-ex-af-af []
 ;;   (apply build (concat (swap-registers "a" "a1") (swap-registers "f" "f1"))))
 
