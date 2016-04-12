@@ -207,6 +207,8 @@
    {:i :dec-8-reg :r [r]}
    [:register-16 rs]
    {:i :dec-16-reg :r [rs]}
+   [:addr-from-register [:register-16 "hl"]]
+   {:i :dec-16-ahl}))
 
 (defn opdata-rlc [reg]
   (match
