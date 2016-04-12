@@ -236,6 +236,12 @@
    [:jr-cond [:condition c] [:literal-8]]
    {:i :jr-cond-addr :cond c :arg :arg-8}))
 
+(defn opdata-djnz [literal]
+  (match
+   literal
+   [:literal-8]
+   {:i :djnz :arg :arg-8}))
+
 ;; (defn esil-ex-af-af []
 ;;   (apply build (concat (swap-registers "a" "a1") (swap-registers "f" "f1"))))
 
