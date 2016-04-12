@@ -204,9 +204,9 @@
   (match
    reg
    [:register-8 r]
-   {:i :add-8-reg :r [r]}
+   {:i :dec-8-reg :r [r]}
    [:register-16 rs]
-   {:i :inc-16-reg :r [rs]}))
+   {:i :dec-16-reg :r [rs]}
 
 (defn opdata-rlc [reg]
   (match
