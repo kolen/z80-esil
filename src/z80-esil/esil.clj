@@ -90,6 +90,8 @@
    {:i :ld-8-addr-reg :r [rs] :arg :arg16}
    [:pair-8 [:addr-from-register [:register-16 rd]] [:register-8 rs]]
    {:i :ld-8-areg-reg :r [rd rs]}
+   [:pair-8 [:addr-from-register [:register-16 rd]] [:literal-8]]
+   {:i :ld-8-areg-arg :reg [rd] :arg :arg8}
    ;; write 2 bytes to memory
    [:pair-16 [:addr _] [:register-16 rs]]
    {:i :ld-16-addr-reg :r [rs] :arg :arg16}
