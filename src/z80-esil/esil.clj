@@ -51,6 +51,11 @@
 ;;   (match pair
 ;;          [:pair-8]))
 
+(defn handler-fn [opname prefix]
+  {:post [%]}
+  (prn "opname:" opname)
+  (find-var (symbol "z80-esil.esil" (str prefix (name opname)))))
+
 (defn opdata "Return op data structure for instr (parsed tree)"
   [instr]
   (match instr
@@ -59,15 +64,6 @@
          [:instruction [opname & args]]
          (apply (handler-fn opname "opdata-") args)
          ))
-
-;; (defn esil-flags [instr]
-;;   (match instr
-;;          [:instruction [opname & args]] (apply (handler-fn opname "flags-") args)))
-
-(defn handler-fn [opname prefix]
-  {:post [%]}
-  (prn opname)
-  (find-var (symbol "z80-esil.esil" (str prefix (name opname)))))
 
 (defn opdata-ld [pair]
   (match
