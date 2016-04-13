@@ -238,6 +238,49 @@
    [:literal-8]
    {:i :djnz :arg :arg-8}))
 
+(defn opdata-call [unc-or-cond]
+  (match
+   unc-or-cond
+   [:call-unc [:literal-16]]
+   {:i :call-unc :arg :arg-16}
+   [:call-cond [:condition c] [:literal-16]]
+   {:i :call-cond :arg :arg-16 :cond c}))
+
+(defn opdata-ret [unc-or-cond]
+  (match
+   unc-or-cond
+   [:ret-unc]
+   {:i :ret-unc}
+   [:ret-cond [:condition c]]
+   {:i :ret-cond :cond c}))
+
+(defn opdata-rst [addr]
+  {:i :rst :addr addr})
+
+(defn opdata-in
+  ([position-8 port]
+   (match
+    [position-8 port]
+    [[:arg-8 "a"] [:port [:literal-8]]]
+    {:i :in-a :arg :arg-8}
+    [[:arg-8 [:register-8 r]] [:port "[c]"]]
+    {:i :in-reg-ac :r [r]}))
+  ([port]
+   (match
+    port
+    [:port :arg-8]
+    {:i :in-f :arg :arg-8})))
+
+(defn opdata-out [port pos-or-0]
+  (match
+   [port pos-or-0]
+   [[:port [:literal-8]] [:register-8 "a"]]
+   {:i :out-a :arg :arg-8}
+   [[:port "[c]"] [:register-8 r]]
+   {:i :out-ac-reg :r [r]}
+   [[:port "[c]"] "0"]
+   {:i :out-ac-0}))
+
 ;; (defn esil-ex-af-af []
 ;;   (apply build (concat (swap-registers "a" "a1") (swap-registers "f" "f1"))))
 
