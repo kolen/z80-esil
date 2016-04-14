@@ -76,6 +76,8 @@
    {:i :ld-8-reg-addr :r [rd] :arg :arg16}
    [:pair-8 [:register-8 rd] [:addr-from-register [:register-16 rs]]]
    {:i :ld-8-reg-areg :r [rd rs]}
+   [:pair-8 [:addr [:literal-8-with-index in [:literal-8]]] [:literal-8]]
+   {:i :ld-8-ixiy-arg :r [in] :arg :arg-8}
    ;; read 2 bytes from memory
    [:pair-16 [:register-16 rd] [:addr _]]
    {:i :ld-16-reg-addr :r [rd] :arg :arg16}
@@ -139,6 +141,8 @@
    {:i :add-a-ahl}
    [:pair-8 [:register-8 "a"] [:addr [:literal-8-with-index in]]]
    {:i :add-a-aixiy :r [in] :arg :arg-8}
+   [:pair-8 [:register-8 "a"] [:literal-8]]
+   {:i :add-a-arg :arg :arg-8}
    [:pair-16 [:register-16 rd] [:register-16 rs]]
    {:i :add-16-reg-reg :r [rd rs]}))
 
@@ -146,43 +150,71 @@
   (match
    pair
    [:pair-8 [:register-8 "a"] [:register-8 rs]]
-   {:i :adc :r [rs]}))
+   {:i :adc :r [rs]}
+   [:pair-8 [:register-8 "a"] [:addr-from-register [:register-16 "hl"]]]
+   {:i :adc-a-ahl}
+   [:pair-8 [:register-8 "a"] [:literal-8]]
+   {:i :adc-a-arg :arg :arg-8}))
 
 (defn opdata-sub [reg]
   (match
    reg
    [:register-8 rs]
-   {:i :sub :r [rs]}))
+   {:i :sub :r [rs]}
+   [:addr-from-register [:register-16 "hl"]]
+   {:i :sub-ahl}
+   [:literal-8]
+   {:i :sub-arg :arg :arg-8}))
 
 (defn opdata-sbc [pair]
   (match
    pair
    [:pair-8 [:register-8 "a"] [:register-8 rs]]
-   {:i :sbc :r [rs]}))
+   {:i :sbc :r [rs]}
+   [:pair-8 [:register-8 "a"] [:addr-from-register [:register-16 "hl"]]]
+   {:i :sbc-ahl}
+   [:pair-8 [:register-8 "a"] [:literal-8]]
+   {:i :sbc-arg}))
 
 (defn opdata-and [reg]
   (match
    reg
    [:register-8 rs]
-   {:i :and :r [rs]}))
+   {:i :and :r [rs]}
+   [:addr-from-register [:register-16 "hl"]]
+   {:i :and-ahl}
+   [:literal-8]
+   {:i :and-arg :arg :arg-8}))
 
 (defn opdata-or [reg]
   (match
    reg
    [:register-8 rs]
-   {:i :or :r [rs]}))
+   {:i :or :r [rs]}
+   [:addr-from-register [:register-16 "hl"]]
+   {:i :or-ahl}
+   [:literal-8]
+   {:i :or-arg :arg :arg-8}))
 
 (defn opdata-xor [reg]
   (match
    reg
    [:register-8 rs]
-   {:i :xor :r [rs]}))
+   {:i :xor :r [rs]}
+   [:addr-from-register [:register-16 "hl"]]
+   {:i :xor-ahl}
+   [:literal-8]
+   {:i :xor-arg :arg :arg-8}))
 
 (defn opdata-cp [reg]
   (match
    reg
    [:register-8 rs]
-   {:i :cp :r [rs]}))
+   {:i :cp :r [rs]}
+   [:addr-from-register [:register-16 "hl"]]
+   {:i :cp-ahl}
+   [:literal-8]
+   {:i :cp-arg :arg :arg-8}))
 
 (defn opdata-inc [reg]
   (match
@@ -191,7 +223,7 @@
    {:i :inc-reg :r [rs]}
    [:addr-from-register [:register-16 "hl"]]
    {:i :inc-ahl}
-   [:addr [:literal-8-with-index in]]
+   [:addr [:literal-8-with-index in [:literal-8]]]
    {:i :inc-aixiy :r [in] :arg :arg-8}
    [:register-16 rs]
    {:i :inc-16-reg :r [rs]}))
@@ -204,7 +236,9 @@
    [:register-16 rs]
    {:i :dec-16-reg :r [rs]}
    [:addr-from-register [:register-16 "hl"]]
-   {:i :dec-16-ahl}))
+   {:i :dec-16-ahl}
+   [:addr [:literal-8-with-index in [:literal-8]]]
+   {:i :dec-8-ixiy :r [in] :arg :arg-8}))
 
 (defn opdata-rlc [reg]
   (match
@@ -261,9 +295,9 @@
   ([position-8 port]
    (match
     [position-8 port]
-    [[:arg-8 "a"] [:port [:literal-8]]]
+    [[:register-8 "a"] [:port [:literal-8]]]
     {:i :in-a :arg :arg-8}
-    [[:arg-8 [:register-8 r]] [:port "[c]"]]
+    [[:register-8 r] [:port "[c]"]]
     {:i :in-reg-ac :r [r]}))
   ([port]
    (match
@@ -280,6 +314,9 @@
    {:i :out-ac-reg :r [r]}
    [[:port "[c]"] "0"]
    {:i :out-ac-0}))
+
+(defn opdata-invalid [_]
+  {:i :invalid})
 
 ;; (defn esil-ex-af-af []
 ;;   (apply build (concat (swap-registers "a" "a1") (swap-registers "f" "f1"))))
