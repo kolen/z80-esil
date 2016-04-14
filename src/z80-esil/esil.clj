@@ -52,9 +52,9 @@
 ;;          [:pair-8]))
 
 (defn handler-fn [opname prefix]
-  {:post [%]}
-  (prn "opname:" opname)
-  (find-var (symbol "z80-esil.esil" (str prefix (name opname)))))
+  (or
+   (find-var (symbol "z80-esil.esil" (str prefix (name opname))))
+   (throw (Exception. (str "handler " prefix (name opname) " not found")))))
 
 (defn opdata "Return op data structure for instr (parsed tree)"
   [instr]
