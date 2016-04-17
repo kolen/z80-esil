@@ -136,13 +136,13 @@
   (match
    pair
    [:pair-8 [:register-8 "a"] [:register-8 rs]]
-   {:i :add-a-reg :r [rs]}
+   {:i :add-reg :r [rs]}
    [:pair-8 [:register-8 "a"] [:addr-from-register [:register-16 "hl"]]]
-   {:i :add-a-ahl}
-   [:pair-8 [:register-8 "a"] [:addr [:literal-8-with-index in]]]
-   {:i :add-a-aixiy :r [in] :arg :arg-8}
+   {:i :add-ahl}
+   [:pair-8 [:register-8 "a"] [:addr [:literal-8-with-index in [:literal-8]]]]
+   {:i :add-ixiy :r [in] :arg :arg-8}
    [:pair-8 [:register-8 "a"] [:literal-8]]
-   {:i :add-a-arg :arg :arg-8}
+   {:i :add-arg :arg :arg-8}
    [:pair-16 [:register-16 rd] [:register-16 rs]]
    {:i :add-16-reg-reg :r [rd rs]}))
 
@@ -152,9 +152,13 @@
    [:pair-8 [:register-8 "a"] [:register-8 rs]]
    {:i :adc :r [rs]}
    [:pair-8 [:register-8 "a"] [:addr-from-register [:register-16 "hl"]]]
-   {:i :adc-a-ahl}
+   {:i :adc-ahl}
    [:pair-8 [:register-8 "a"] [:literal-8]]
-   {:i :adc-a-arg :arg :arg-8}))
+   {:i :adc-arg :arg :arg-8}
+   [:pair-8 [:register-8 "a"] [:addr [:literal-8-with-index in [:literal-8]]]]
+   {:i :adc-ixiy :arg :arg-8}
+   [:pair-16 [:register-16 rd] [:register-16 rs]]
+   {:i :adc-16-reg-reg :r [rd rs]}))
 
 (defn opdata-sub [reg]
   (match
@@ -164,7 +168,11 @@
    [:addr-from-register [:register-16 "hl"]]
    {:i :sub-ahl}
    [:literal-8]
-   {:i :sub-arg :arg :arg-8}))
+   {:i :sub-arg :arg :arg-8}
+   [:pair-8 [:register-8 "a"] [:register-8 rs]]
+   {:i :sub :r [rs]}
+   [:addr [:literal-8-with-index in [:literal-8]]]
+   {:i :sub-ixiy :arg :arg-8}))
 
 (defn opdata-sbc [pair]
   (match
@@ -174,7 +182,11 @@
    [:pair-8 [:register-8 "a"] [:addr-from-register [:register-16 "hl"]]]
    {:i :sbc-ahl}
    [:pair-8 [:register-8 "a"] [:literal-8]]
-   {:i :sbc-arg}))
+   {:i :sbc-arg}
+   [:pair-8 [:register-8 "a"] [:addr [:literal-8-with-index in [:literal-8]]]]
+   {:i :sbc-ixiy :arg :arg-8}
+   [:pair-16 [:register-16 rd] [:register-16 rs]]
+   {:i :sbc-16-reg-reg :r [rd rs]}))
 
 (defn opdata-and [reg]
   (match
@@ -184,7 +196,9 @@
    [:addr-from-register [:register-16 "hl"]]
    {:i :and-ahl}
    [:literal-8]
-   {:i :and-arg :arg :arg-8}))
+   {:i :and-arg :arg :arg-8}
+   [:addr [:literal-8-with-index in [:literal-8]]]
+   {:i :and-ixiy :arg :arg-8}))
 
 (defn opdata-or [reg]
   (match
@@ -194,7 +208,9 @@
    [:addr-from-register [:register-16 "hl"]]
    {:i :or-ahl}
    [:literal-8]
-   {:i :or-arg :arg :arg-8}))
+   {:i :or-arg :arg :arg-8}
+   [:addr [:literal-8-with-index in [:literal-8]]]
+   {:i :or-ixiy :arg :arg-8}))
 
 (defn opdata-xor [reg]
   (match
@@ -204,7 +220,9 @@
    [:addr-from-register [:register-16 "hl"]]
    {:i :xor-ahl}
    [:literal-8]
-   {:i :xor-arg :arg :arg-8}))
+   {:i :xor-arg :arg :arg-8}
+   [:addr [:literal-8-with-index in [:literal-8]]]
+   {:i :xor-ixiy :arg :arg-8}))
 
 (defn opdata-cp [reg]
   (match
@@ -214,7 +232,9 @@
    [:addr-from-register [:register-16 "hl"]]
    {:i :cp-ahl}
    [:literal-8]
-   {:i :cp-arg :arg :arg-8}))
+   {:i :cp-arg :arg :arg-8}
+   [:addr [:literal-8-with-index in [:literal-8]]]
+   {:i :cp-ixiy :arg :arg-8}))
 
 (defn opdata-inc [reg]
   (match
@@ -303,7 +323,9 @@
    (match
     port
     [:port :arg-8]
-    {:i :in-f :arg :arg-8})))
+    {:i :in-f :arg :arg-8}
+    [:port "[c]"]
+    {:i :in-c})))
 
 (defn opdata-out [port pos-or-0]
   (match
@@ -314,6 +336,13 @@
    {:i :out-ac-reg :r [r]}
    [[:port "[c]"] "0"]
    {:i :out-ac-0}))
+
+(defn opdata-im [arg]
+  (match
+   arg
+   "0" {:i :im-0}
+   "1" {:i :im-1}
+   "2" {:i :im-2}))
 
 (defn opdata-invalid [_]
   {:i :invalid})
