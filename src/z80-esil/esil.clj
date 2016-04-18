@@ -338,11 +338,7 @@
    {:i :out-ac-0}))
 
 (defn opdata-im [arg]
-  (match
-   arg
-   "0" {:i :im-0}
-   "1" {:i :im-1}
-   "2" {:i :im-2}))
+  {:i :im :addr (Integer/parseInt arg)})
 
 (defn opdata-invalid [_]
   {:i :invalid})
