@@ -378,11 +378,38 @@
 ;;          [:pair-8 [:register-8 "a"] [:register-8 (rs :guard #{"i" "r"})]]
 ;;          (flags :sf "a" :zf "a" :yf "a" :hf 0 :xf "a" :pf "iff2" :nf 0)))
 
-(esil (parse-instr "ldir"))
-
-(parse-instr "add a, [iy+0x%02x]")
+;;(parse-instr "add a, [iy+0x%02x]")
 
 ;; (esil-flags (parse-instr "ld a, r"))
+
+(def instrs (for [opc (flatten (vals opcodes)) :when (some? opc)]
+              (opdata (parse-instr opc))))
+
+(into #{} (map #(if-let [groups (re-find #"^[^-]*-(.*)$" (name %))] (groups 1) ) (map :i instrs)))
+
+(into #{} (mapcat keys instrs))
+
+(defn const [prefix kw]
+  (if kw
+    (s/upper-case (s/replace (str prefix "-" (name kw)) "-" "_"))
+    "0"))
+
+;; instruction, reg1, reg2, arg, cond, addr
+(defn instr-record [i]
+  [(const "op" (i :i))
+   (const "reg" (some->> i :r first))
+   (const "reg" (some->> i :r second))
+   (const "" (:r :arg))
+   (const "cond" (i :cond))
+   (if-let [addr (i :addr)] (str addr) "0")])
+
+(instr-record {:i :ld-reg-reg :r [:a :h]})
+
+;; :i -- instruction
+;; :r -- list of registers
+;; :addr -- address or literal argument, included in opcode (im, rst)
+;; :cond -- condition (jp, jr, ret)
+;; :arg -- arg length (after opcode)
 
 (filter insta/failure?
         (for [opc (flatten (vals opcodes)) :when (some? opc)]
