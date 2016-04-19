@@ -22,20 +22,27 @@
 
 (defn instr-record-s [rec raw]
   {:pre [(= (count rec) 6)]}
-  (apply format "\t{%-20s %s, %s, %s, %s, %s}, // %s"
-         (str (first rec) ",")
-         (concat (rest rec)
-                 [(-> raw
-                      (s/replace "0x%02x" "*")
-                      (s/replace "0x%04x" "**"))])))
+  (s/trimr
+   (apply format "\t{%-20s %s, %s, %s, %s, %s}, // %s"
+          (str (first rec) ",")
+          (concat (rest rec)
+                  [(-> raw
+                       (s/replace "0x%02x" "*")
+                       (s/replace "0x%04x" "**"))]))))
 
 (defn block [name type instrs]
   (format
-   "static %s %s[]={\n%s\n};"
+   "static %s %s[]={\n%s\n};\n"
    type
    name
    (s/join "\n"
            (for [instr instrs]
              (-> instr parse-instr opdata instr-record (instr-record-s instr))))))
 
-(spit "/tmp/test.c" (block "ops_basic" "z80_op" (z80-esil.opcodes/opcodes nil)))
+(defn all-blocks []
+  (s/join
+   "\n"
+   (for [[key name] '([nil "main"] [:dd "dd"] [:fd "ed"] [:ed "fd"])]
+     (block (str "z80_ops_" name) "loltype" (z80-esil.opcodes/opcodes key)))))
+
+(spit "/tmp/test.c" (all-blocks))
