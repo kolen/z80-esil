@@ -73,33 +73,33 @@
    {:i :ld-reg-reg :r [r1 r2]}
    ;; read 1 byte from memory
    [:pair-8 [:register-8 rd] [:addr _]]
-   {:i :ld-8-reg-addr :r [rd] :arg :arg16}
+   {:i :ld-8-reg-addr :r [rd] :arg :arg-16}
    [:pair-8 [:register-8 rd] [:addr-from-register [:register-16 rs]]]
    {:i :ld-8-reg-areg :r [rd rs]}
    [:pair-8 [:addr [:literal-8-with-index in [:literal-8]]] [:literal-8]]
    {:i :ld-8-ixiy-arg :r [in] :arg :arg-8}
    ;; read 2 bytes from memory
    [:pair-16 [:register-16 rd] [:addr _]]
-   {:i :ld-16-reg-addr :r [rd] :arg :arg16}
+   {:i :ld-16-reg-addr :r [rd] :arg :arg-16}
    [:pair-16 [:register-16 rd] [:addr-from-register [:register-16 rs]]]
    {:i :ld-16-reg-areg :r [rd rs]}
    ;; write 1 byte to memory
    [:pair-8 [:addr _] [:register-8 rs]]
-   {:i :ld-8-addr-reg :r [rs] :arg :arg16}
+   {:i :ld-8-addr-reg :r [rs] :arg :arg-16}
    [:pair-8 [:addr-from-register [:register-16 rd]] [:register-8 rs]]
    {:i :ld-8-areg-reg :r [rd rs]}
    [:pair-8 [:addr-from-register [:register-16 rd]] [:literal-8]]
-   {:i :ld-8-areg-arg :r [rd] :arg :arg8}
+   {:i :ld-8-areg-arg :r [rd] :arg :arg-8}
    ;; write 2 bytes to memory
    [:pair-16 [:addr _] [:register-16 rs]]
-   {:i :ld-16-addr-reg :r [rs] :arg :arg16}
+   {:i :ld-16-addr-reg :r [rs] :arg :arg-16}
    [:pair-16 [:addr-from-register [:register-16 rd]] [:register-16 rs]]
    {:i :ld-16-areg-reg :r [rd rs]}
    ;; write arg to register
    [:pair-16 [:register-16 rd] [:literal-16]]
-   {:i :ld-16-reg-arg :r [rd] :arg :arg16}
+   {:i :ld-16-reg-arg :r [rd] :arg :arg-16}
    [:pair-8 [:register-8 rd] [:literal-8]]
-   {:i :ld-8-reg-arg :r [rd] :arg :arg8}))
+   {:i :ld-8-reg-arg :r [rd] :arg :arg-8}))
 
 ;; (defn esil-push [register]
 ;;   (match register [:register-16 r] (build 2 "sp" "-=" r "sp" "=[2]")))
