@@ -389,19 +389,11 @@
 
 (into #{} (mapcat keys instrs))
 
-(defn const [prefix kw]
-  (if kw
-    (s/upper-case (s/replace (str prefix "-" (name kw)) "-" "_"))
-    "0"))
+(map instr-record instrs)
 
-;; instruction, reg1, reg2, arg, cond, addr
-(defn instr-record [i]
-  [(const "op" (i :i))
-   (const "reg" (some->> i :r first))
-   (const "reg" (some->> i :r second))
-   (const "" (:r :arg))
-   (const "cond" (i :cond))
-   (if-let [addr (i :addr)] (str addr) "0")])
+;; max op name without prefix is 14
+;;(apply max (map #(->> % :i name count) instrs))
+
 
 (instr-record {:i :ld-reg-reg :r [:a :h]})
 
