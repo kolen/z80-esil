@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-typedef uint8_t ut8;
+//typedef uint8_t ut8;
+#define ut8 unsigned char
 
 static ut8 z80_fddd_branch_index_res (ut8 hex)
 {
@@ -124,7 +125,7 @@ static ut8 z80_fddd_branch_index_res (ut8 hex)
 }
 
 static ut8 z80_ed_branch_index_res (ut8 hex) {
-	if (hex > 0x39 && 0x4c > hex)
+	if (hex > 0x3f && 0x4c > hex)
 		return hex-0x40;
 	if (hex == 0x4d)
 		return 0xc;
@@ -177,18 +178,22 @@ static ut8 z80_op_24_branch_index_res (ut8 hex) {
 	return 0xc8;
 }
 
-void print_block(ut8 (*func)(ut8)) {
+void print_block(ut8 (*func)(ut8), int max) {
   int i;
   printf("[");
   for (i=0; i<255; i++) {
-    printf("0x%02x ", func(i));
+    ut8 result = func(i);
+    if(result < 0 || result >= max) {
+      printf("   * * * *   ");
+    }
+    printf("0x%02x ", result);
   }
   printf("]\n");
 }
 
 int main(int argc, char *argv[]) {
-  print_block(&z80_fddd_branch_index_res);
-  print_block(&z80_ed_branch_index_res);
-  print_block(&z80_op_24_branch_index_res);
+  print_block(&z80_fddd_branch_index_res, 87);
+  print_block(&z80_ed_branch_index_res, 60);
+  print_block(&z80_op_24_branch_index_res, 201);
   return 0;
 }
