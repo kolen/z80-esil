@@ -2,6 +2,7 @@ instruction = nop | halt | ld | push | pop | ex | exx | ex-af-af |
               ldi | ldir | ldd | lddr | cpi | cpir | cpd | cpdr |
               add | adc | sbc | sub | and | or | xor |
               cp | inc | dec | rlca | rrca | rla | rra | rld | rrd |
+              bit | set | res | rlc | rrc | sla | sra |
               daa | cpl | neg | scf | ccf |
               jp | jr | djnz | call | rst | ret |
               in | out | di | ei | im | reti | retn |
@@ -43,6 +44,14 @@ rla = <'rla'>
 rra = <'rra'>
 rld = <'rld'>
 rrd = <'rrd'>
+
+bit = <'bit '> bit-number <', '> literal-8-with-index
+set = set-simple | set-ld
+set-simple = <'set '> bit-number <', '> literal-8-with-index
+set-ld = <'ld '> register-8 ', ' set-simple
+res = res-simple | res-ld
+res-simple = <'res '> bit-number <', '> literal-8-with-index
+res-ld = <'ld '> register-8 ', ' res-simple
 
 daa = <'daa'>
 cpl = <'cpl'>
@@ -102,3 +111,4 @@ literal-8-with-index = ('ix' | 'iy') <'+'> literal-8
 addr = <'['> (literal-16 | literal-8-with-index) <']'>
 port = (<'['> literal-8 <']'>) | literal-8 | '[c]'
 condition = 'nz' | 'z' | 'nc' | 'c' | 'po' | 'pe' | 'p' | 'm'
+<bit-number> = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7'
