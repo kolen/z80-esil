@@ -23,7 +23,9 @@
          {:i opname} ;; when without args
          [:instruction [opname & args]]
          (apply (handler-fn opname "opdata-") args)
-         ))
+         (fail :guard insta/failure?)
+         (throw (IllegalStateException.
+                 (prn-str (insta/get-failure fail))))))
 
 (defn opdata-ld [pair]
   (match
