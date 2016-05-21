@@ -7,6 +7,7 @@ instruction = nop | halt | ld | push | pop | ex | exx | ex-af-af |
               jp | jr | djnz | call | rst | ret |
               in | out | di | ei | im | reti | retn |
               ini | inir | ind | indr | outi | otir | otdr | outd |
+              rl | rr | sll | srl |
               empty | invalid
 
 nop = <'nop'>
@@ -108,11 +109,16 @@ otir = <'otir'>
 otdr = <'otdr'>
 outd = <'outd'>
 
+rl = <'rl '> addr
+rr = <'rr '> addr
+sll = <'sll '> addr
+srl = <'srl '> addr
+
 empty = ''
 invalid = 'invalid' | '!unk'
 
 <position> = position-8 | position-16
-<position-8> = register-8 | addr-from-register | literal-8 | addr
+<position-8> = register-8 | addr-from-register | literal-8 | addr | fancy-ixiy
 <position-16> = register-16 | addr-from-register | literal-16 | addr
 <pair> = pair-8 | pair-16
 pair-8 = position-8 <', '> position-8
@@ -130,3 +136,5 @@ addr = <'['> (literal-16 | literal-8-with-index) <']'>
 port = (<'['> literal-8 <']'>) | literal-8 | '[c]'
 condition = 'nz' | 'z' | 'nc' | 'c' | 'po' | 'pe' | 'p' | 'm'
 <bit-number> = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7'
+<fancy-ixiy> = fancy-ixiy-op <' '> addr
+<fancy-ixiy-op> = 'rrc' | 'rlc' | 'rl' | 'rr' | 'sla' | 'sra' | 'sll' | 'srl' | 'res' | 'set' | 'bit'
