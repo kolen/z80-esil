@@ -360,24 +360,25 @@
    [:addr [:literal-8-with-index ixiy [:literal-8]]]
    {:i :bit :r [ixiy] :addr bit :arg :arg-8}))
 
-(defn opdata-set
-  ([bit arg]
-   (match
-    arg
-    [:addr [:literal-8-with-index ixiy [:literal-8]]]
-    {:i :set-ixiy :r [ixiy] :addr bit :arg :arg-8}))
-  ([bit]
-   {:i :set :addr bit}))
+(defn opdata-set [arg]
+  (match
+   arg
+   [:set-ld
+    [:register-8 rd]
+    [:set-simple bit [:addr [:literal-8-with-index ixiy [:literal-8]]]]]
+   {:i :set-ld-ixiy :r [rd ixiy] :addr bit :arg :arg-8}
+   [:set-simple bit [:addr [:literal-8-with-index ixiy [:literal-8]]]]
+   {:i :set-ixiy :r [ixiy] :addr bit :arg :arg-8}))
 
-(defn opdata-res
-  ([bit arg]
-   (match
-    arg
-    [:addr [:literal-8-with-index ixiy [:literal-8]]]
-    {:i :res-ixiy :r [ixiy] :addr bit :arg :arg-8}))
-  ([bit]
-   {:i :res :addr bit}))
-
+(defn opdata-res [arg]
+  (match
+   arg
+   [:res-ld
+    [:register-8 rd]
+    [:res-simple bit [:addr [:literal-8-with-index ixiy [:literal-8]]]]]
+   {:i :res-ld-ixiy :r [rd ixiy] :addr bit :arg :arg-8}
+   [:res-simple bit [:addr [:literal-8-with-index ixiy [:literal-8]]]]
+   {:i :res-ixiy :r [ixiy] :addr bit :arg :arg-8}))
 
 (defn opdata-invalid [_]
   {:i :invalid})

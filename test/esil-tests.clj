@@ -29,6 +29,6 @@
         (cond
           (s/includes? op "%02") (= :arg-8 (opdata :arg))
           (s/includes? op "%04") (= :arg-16 (opdata :arg))
-          :else true)
+          :else (not (contains? opdata :arg)))
         (str "Op " op ": invalid arg " (opdata :arg) ", op: "
              opdata ", ast: " ast))))))
