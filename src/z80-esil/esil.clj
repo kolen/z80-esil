@@ -26,13 +26,13 @@
            [op-ld
             [:register-8 rd]
             [_ [:addr [:literal-8-with-index ixiy [:literal-8]]]]]]]
-         {:i op-ld :r [rd ixiy]}
+         {:i op-ld :r [rd ixiy] :arg :arg-8}
          [:instruction
           [:ld [:pair-8
                 [:register-8 rd]
                 op
                 [:addr [:literal-8-with-index ixiy [:literal-8]]]]]]
-         {:i (keyword (str op "-ld")) :r [rd ixiy]}
+         {:i (keyword (str op "-ld")) :r [rd ixiy] :arg :arg-8}
          [:instruction [opname & args]]
          (apply (handler-fn opname "opdata-") args)
          (fail :guard insta/failure?)
@@ -46,8 +46,10 @@
    [_ [(:or :register-8 :register-16) r1] [(:or :register-8 :register-16) r2]]
    {:i :ld-reg-reg :r [r1 r2]}
    ;; read 1 byte from memory
-   [:pair-8 [:register-8 rd] [:addr _]]
+   [:pair-8 [:register-8 rd] [:addr [:literal-16]]]
    {:i :ld-8-reg-addr :r [rd] :arg :arg-16}
+   [:pair-8 [:register-8 rd] [:addr [:literal-8-with-index ixiy [:literal-8]]]]
+   {:i :ld-8-reg-addr-ixiy :r [ixiy] :arg :arg-8}
    [:pair-8 [:register-8 rd] [:addr-from-register [:register-16 rs]]]
    {:i :ld-8-reg-areg :r [rd rs]}
    [:pair-8 [:addr [:literal-8-with-index in [:literal-8]]] [:literal-8]]
@@ -58,10 +60,12 @@
    [:pair-16 [:register-16 rd] [:addr-from-register [:register-16 rs]]]
    {:i :ld-16-reg-areg :r [rd rs]}
    ;; write 1 byte to memory
-   [:pair-8 [:addr _] [:register-8 rs]]
+   [:pair-8 [:addr [:literal-16]] [:register-8 rs]]
    {:i :ld-8-addr-reg :r [rs] :arg :arg-16}
    [:pair-8 [:addr-from-register [:register-16 rd]] [:register-8 rs]]
    {:i :ld-8-areg-reg :r [rd rs]}
+   [:pair-8 [:addr [:literal-8-with-index ixiy [:literal-8]]] [:register-8 rs]]
+   {:i :ld-8-ixiy-reg :r [ixiy rs] :arg :arg-8}
    [:pair-8 [:addr-from-register [:register-16 rd]] [:literal-8]]
    {:i :ld-8-areg-arg :r [rd] :arg :arg-8}
    ;; write 2 bytes to memory
@@ -143,7 +147,7 @@
    [:pair-8 [:register-8 "a"] [:addr-from-register [:register-16 "hl"]]]
    {:i :sbc-ahl}
    [:pair-8 [:register-8 "a"] [:literal-8]]
-   {:i :sbc-arg}
+   {:i :sbc-arg :arg :arg-8}
    [:pair-8 [:register-8 "a"] [:addr [:literal-8-with-index in [:literal-8]]]]
    {:i :sbc-ixiy :arg :arg-8}
    [:pair-16 [:register-16 rd] [:register-16 rs]]
@@ -229,7 +233,7 @@
    [:addr-from-register [:register-8 r]]
    {:i :rlc-areg :r [r]}
    [:rlc-simple [:addr [:literal-8-with-index ixiy [:literal-8]]]]
-   {:i :rlc-ixiy :r [ixiy]}))
+   {:i :rlc-ixiy :r [ixiy] :arg :arg-8}))
 
 (defn opdata-rrc [reg]
   (match
@@ -239,7 +243,7 @@
    [:addr-from-register [:register-8 r]]
    {:i :rrc-areg :r [r]}
    [:rrc-simple [:addr [:literal-8-with-index ixiy [:literal-8]]]]
-   {:i :rrc-ixiy :r [ixiy]}))
+   {:i :rrc-ixiy :r [ixiy] :arg :arg-8}))
 
 
 (defn opdata-jp [unc-or-cond]
