@@ -21,6 +21,18 @@
   (match instr
          [:instruction [opname]]
          {:i opname} ;; when without args
+         [:instruction
+          [_
+           [op-ld
+            [:register-8 rd]
+            [_ [:addr [:literal-8-with-index ixiy [:literal-8]]]]]]]
+         {:i op-ld :r [rd ixiy]}
+         [:instruction
+          [:ld [:pair-8
+                [:register-8 rd]
+                op
+                [:addr [:literal-8-with-index ixiy [:literal-8]]]]]]
+         {:i (keyword (str op "-ld")) :r [rd ixiy]}
          [:instruction [opname & args]]
          (apply (handler-fn opname "opdata-") args)
          (fail :guard insta/failure?)
@@ -61,7 +73,9 @@
    [:pair-16 [:register-16 rd] [:literal-16]]
    {:i :ld-16-reg-arg :r [rd] :arg :arg-16}
    [:pair-8 [:register-8 rd] [:literal-8]]
-   {:i :ld-8-reg-arg :r [rd] :arg :arg-8}))
+   {:i :ld-8-reg-arg :r [rd] :arg :arg-8}
+   ;; ix and bits
+   [:pair-8 [:register-8 rd] []] nil))
 
 (defn opdata-push [register]
   (match register [:register-16 r]
@@ -213,7 +227,20 @@
    [:register-8 r]
    {:i :rlc-reg :r [r]}
    [:addr-from-register [:register-8 r]]
-   {:i :rlc-areg :r [r]}))
+   {:i :rlc-areg :r [r]}
+   [:rlc-simple [:addr [:literal-8-with-index ixiy [:literal-8]]]]
+   {:i :rlc-ixiy :r [ixiy]}))
+
+(defn opdata-rrc [reg]
+  (match
+   reg
+   [:register-8 r]
+   {:i :rrc-reg :r [r]}
+   [:addr-from-register [:register-8 r]]
+   {:i :rrc-areg :r [r]}
+   [:rrc-simple [:addr [:literal-8-with-index ixiy [:literal-8]]]]
+   {:i :rrc-ixiy :r [ixiy]}))
+
 
 (defn opdata-jp [unc-or-cond]
   (match
@@ -287,29 +314,72 @@
 (defn opdata-im [arg]
   {:i :im :addr (Integer/parseInt arg)})
 
+(defn opdata-rl [arg]
+  (match
+   arg
+   [:addr [:literal-8-with-index ixiy [:literal-8]]]
+   {:i :rl :r [ixiy] :arg :arg-8}))
+
+(defn opdata-rr [arg]
+  (match
+   arg
+   [:addr [:literal-8-with-index ixiy [:literal-8]]]
+   {:i :rr :r [ixiy] :arg :arg-8}))
+
+(defn opdata-sla [arg]
+  (match
+   arg
+   [:sla-simple [:addr [:literal-8-with-index ixiy [:literal-8]]]]
+   {:i :sla :r [ixiy] :arg :arg-8}))
+
+(defn opdata-sra [arg]
+  (match
+   arg
+   [:sra-simple [:addr [:literal-8-with-index ixiy [:literal-8]]]]
+   {:i :sra :r [ixiy] :arg :arg-8}))
+
+(defn opdata-sll [arg]
+  (match
+   arg
+   [:addr [:literal-8-with-index ixiy [:literal-8]]]
+   {:i :sll :r [ixiy] :arg :arg-8}))
+
+(defn opdata-srl [arg]
+  (match
+   arg
+   [:addr [:literal-8-with-index ixiy [:literal-8]]]
+   {:i :srl :r [ixiy] :arg :arg-8}))
+
+(defn opdata-bit [bit arg]
+  (match
+   arg
+   [:addr [:literal-8-with-index ixiy [:literal-8]]]
+   {:i :bit :r [ixiy] :addr bit :arg :arg-8}))
+
+(defn opdata-set
+  ([bit arg]
+   (match
+    arg
+    [:addr [:literal-8-with-index ixiy [:literal-8]]]
+    {:i :set-ixiy :r [ixiy] :addr bit :arg :arg-8}))
+  ([bit]
+   {:i :set :addr bit}))
+
+(defn opdata-res
+  ([bit arg]
+   (match
+    arg
+    [:addr [:literal-8-with-index ixiy [:literal-8]]]
+    {:i :res-ixiy :r [ixiy] :addr bit :arg :arg-8}))
+  ([bit]
+   {:i :res :addr bit}))
+
+
 (defn opdata-invalid [_]
   {:i :invalid})
-
-(def instrs (for [opc (flatten (vals opcodes)) :when (some? opc)]
-              (opdata (parse-instr opc))))
-
-(into #{} (map #(if-let [groups (re-find #"^[^-]*-(.*)$" (name %))] (groups 1) ) (map :i instrs)))
-
-(into #{} (mapcat keys instrs))
-
-(map instr-record instrs)
-
-;; max op name without prefix is 14
-;;(apply max (map #(->> % :i name count) instrs))
-
-(instr-record {:i :ld-reg-reg :r [:a :h]})
 
 ;; :i -- instruction
 ;; :r -- list of registers
 ;; :addr -- address or literal argument, included in opcode (im, rst)
 ;; :cond -- condition (jp, jr, ret)
 ;; :arg -- arg length (after opcode)
-
-(filter insta/failure?
-        (for [opc (flatten (vals opcodes)) :when (some? opc)]
-          (parse-instr opc)))
